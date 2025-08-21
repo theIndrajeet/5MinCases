@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mobile Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .mobile { background: #d4f4dd; }
+        .desktop { background: #f4d4d4; }
+    </style>
+</head>
+<body>
+    <h1>Device Detection Test</h1>
+    
+    <div class="info">
+        <strong>Screen Width:</strong> <span id="width"></span>px
+    </div>
+    
+    <div class="info">
+        <strong>User Agent:</strong> <span id="ua"></span>
+    </div>
+    
+    <div class="info" id="device">
+        <strong>Device Type:</strong> <span id="type"></span>
+    </div>
+    
+    <div class="info">
+        <strong>Touch Support:</strong> <span id="touch"></span>
+    </div>
+    
+    <div class="info">
+        <strong>PWA Mode:</strong> <span id="pwa"></span>
+    </div>
+
+    <script>
+        // Update screen width
+        function updateWidth() {
+            document.getElementById('width').textContent = window.innerWidth;
+            
+            const deviceEl = document.getElementById('device');
+            const typeEl = document.getElementById('type');
+            
+            if (window.innerWidth < 768) {
+                typeEl.textContent = 'Mobile';
+                deviceEl.className = 'info mobile';
+            } else {
+                typeEl.textContent = 'Desktop';
+                deviceEl.className = 'info desktop';
+            }
+        }
+        
+        // Initial update
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        
+        // User agent
+        document.getElementById('ua').textContent = navigator.userAgent;
+        
+        // Touch support
+        const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        document.getElementById('touch').textContent = hasTouch ? 'Yes' : 'No';
+        
+        // PWA detection
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                     window.navigator.standalone || 
+                     document.referrer.includes('android-app://');
+        document.getElementById('pwa').textContent = isPWA ? 'Yes (Installed)' : 'No (Browser)';
+    </script>
+</body>
+</html>

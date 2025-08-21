@@ -1,0 +1,50 @@
+{
+  "name": "5 Min Case - Legal Doomscroll",
+  "short_name": "5 Min Case",
+  "description": "Case closed, in 60 words. Your daily legal scroll.",
+  "theme_color": "#0B2B26",
+  "background_color": "#DAF1DE",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/?source=pwa",
+  "id": "5mincase",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "label": "5 Min Case home screen"
+    }
+  ],
+  "categories": ["education", "news", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Today's Cases",
+      "url": "/?tab=today",
+      "description": "View today's latest cases"
+    },
+    {
+      "name": "Saved Cases",
+      "url": "/?tab=saved",
+      "description": "View your saved cases"
+    }
+  ]
+}

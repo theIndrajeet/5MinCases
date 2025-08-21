@@ -1,0 +1,112 @@
+{
+  "date": "2025-01-15",
+  "count": 3,
+  "cases": [
+    {
+      "id": "2025-01-SC-demo1",
+      "jurisdiction": "IN",
+      "court": "Supreme Court of India",
+      "date": "2025-01-15T10:00:00Z",
+      "neutralCitation": "(2025) SCC OnLine SC 123",
+      "reporterCitations": ["AIR 2025 SC 102"],
+      "parties": {
+        "title": "ABC Pvt Ltd v. Union of India",
+        "appellant": "ABC Pvt Ltd",
+        "respondent": "Union of India"
+      },
+      "statutes": ["Arbitration and Conciliation Act, 1996 — s.34"],
+      "outcome": "Award set aside in part",
+      "source": "indiankanoon",
+      "url": "https://www.indiankanoon.org/",
+      "tldr60": "SC clarifies scope of Section 34: courts may set aside an award for patent illegality apparent on the face, but cannot re-appreciate evidence; remand only when essential findings are missing. This limits judicial interference in arbitration.",
+      "brief5min": {
+        "facts": "Parties disputed a services contract; arbitral tribunal awarded damages to ABC. The Union challenged on patent illegality and jurisdictional error.",
+        "issues": "(1) Whether alleged patent illegality justified interference under s.34. (2) Whether tribunal exceeded jurisdiction in awarding heads of damages.",
+        "holding": "Limited interference permitted: parts of the award ignoring mandatory clauses were set aside; factual re‑appreciation disallowed.",
+        "reasoning": "The Court distinguished mere erroneous application from 'patent illegality'. Contractual bar on consequential damages was ignored by tribunal, warranting partial set‑aside.",
+        "disposition": "Award partially set aside; matter not remanded; costs quantified; directions issued for payment of undisputed sums."
+      },
+      "keyQuotes": [
+        {
+          "quote": "Section 34 is not an appellate provision; re‑appreciation is impermissible.",
+          "pin": "¶18"
+        },
+        {
+          "quote": "Patent illegality must be apparent on the face of the award.",
+          "pin": "¶22"
+        }
+      ],
+      "tags": ["Arbitration", "Commercial"],
+      "createdAt": "2025-01-15T10:00:00Z",
+      "updatedAt": "2025-01-15T10:00:00Z"
+    },
+    {
+      "id": "2025-01-DHC-demo2",
+      "jurisdiction": "IN",
+      "court": "Delhi High Court",
+      "date": "2025-01-15T11:00:00Z",
+      "neutralCitation": "2025:DHC:1234",
+      "reporterCitations": [],
+      "parties": {
+        "title": "PQR Media v. DEF Studios",
+        "appellant": "PQR Media",
+        "respondent": "DEF Studios"
+      },
+      "statutes": ["Copyright Act, 1957 — s.52"],
+      "outcome": "Interim injunction modified",
+      "source": "indiankanoon",
+      "url": "https://www.indiankanoon.org/",
+      "tldr60": "DHC narrows interim injunction against critic's clips, holding review excerpts may be fair dealing if transformative and limited; platform takedown restored only for full‑length uploads. Balances copyright with free speech.",
+      "brief5min": {
+        "facts": "PQR sought a blanket injunction over video reviews containing short clips. Trial court granted broad takedown.",
+        "issues": "Whether short, transformative excerpts for critique qualify as fair dealing under s.52.",
+        "holding": "Yes, where excerpts are necessary, brief, and linked to commentary; blanket bans are disproportionate.",
+        "reasoning": "Critique serves public interest; proportionality guides interim relief; market substitution not shown for short clips.",
+        "disposition": "Injunction modified; selective takedown for infringing full uploads maintained."
+      },
+      "keyQuotes": [
+        {
+          "quote": "Transformative purpose tempers exclusivity at the interim stage.",
+          "pin": "¶29"
+        }
+      ],
+      "tags": ["IPR", "Media"],
+      "createdAt": "2025-01-15T11:00:00Z",
+      "updatedAt": "2025-01-15T11:00:00Z"
+    },
+    {
+      "id": "2025-01-UKCA-demo3",
+      "jurisdiction": "UK",
+      "court": "Court of Appeal (Civil Division)",
+      "date": "2025-01-15T09:00:00Z",
+      "neutralCitation": "[2025] EWCA Civ 999",
+      "reporterCitations": [],
+      "parties": {
+        "title": "R (X Ltd) v Information Commissioner",
+        "appellant": "X Ltd",
+        "respondent": "Information Commissioner"
+      },
+      "statutes": ["UK GDPR — Art. 6", "DPA 2018"],
+      "outcome": "Appeal allowed in part",
+      "source": "judiciary-uk",
+      "url": "https://www.judiciary.uk/",
+      "tldr60": "Court clarifies legitimate interests test: controllers must show a specific, present interest and a reasoned necessity; generic 'fraud prevention' claims are insufficient. Data protection requires concrete justification.",
+      "brief5min": {
+        "facts": "ICO upheld a penalty for processing without a valid basis. X Ltd relied on legitimate interests for broad analytics.",
+        "issues": "Whether X Ltd identified a concrete legitimate interest and whether processing was necessary and balanced fairly.",
+        "holding": "Interest too generic; some narrow analytics were justified; penalty recalculated.",
+        "reasoning": "A lawful basis needs a specific objective and evidence of necessity; balancing favored data subjects for profiling segments.",
+        "disposition": "Appeal allowed in part; matter remitted to ICO for reassessment."
+      },
+      "keyQuotes": [
+        {
+          "quote": "Necessity is not convenience; it is a real need for the chosen means.",
+          "pin": "¶41"
+        }
+      ],
+      "tags": ["Data Protection", "Administrative"],
+      "createdAt": "2025-01-15T09:00:00Z",
+      "updatedAt": "2025-01-15T09:00:00Z"
+    }
+  ]
+}
