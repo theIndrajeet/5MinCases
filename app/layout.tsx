@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   authors: [{ name: '5 Min Case' }],
   creator: '5 Min Case',
   publisher: '5 Min Case',
-  metadataBase: new URL('http://localhost:3001'),
+  metadataBase: new URL('https://theindrajeet.github.io/5MinCases'),
   formatDetection: {
     email: false,
     address: false,

@@ -4,6 +4,8 @@ const nextConfig = {
   swcMinify: true,
   output: 'export',
   trailingSlash: true,
+  basePath: '/5MinCases',
+  assetPrefix: '/5MinCases',
   images: {
     unoptimized: true
   },
