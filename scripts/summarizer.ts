@@ -7,6 +7,10 @@ import path from 'path'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { Case, Brief5Min } from '../types/case'
 
+// Load environment variables
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
+
 // Initialize AI clients (will use env vars when provided)
 const genAI = process.env.GEMINI_API_KEY 
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)

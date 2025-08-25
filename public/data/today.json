@@ -1,112 +1,62 @@
 {
-  "date": "2025-01-15",
-  "count": 3,
+  "date": "2025-08-21",
+  "count": 10,
   "cases": [
     {
-      "id": "2025-01-SC-demo1",
-      "jurisdiction": "IN",
-      "court": "Supreme Court of India",
-      "date": "2025-01-15T10:00:00Z",
-      "neutralCitation": "(2025) SCC OnLine SC 123",
-      "reporterCitations": ["AIR 2025 SC 102"],
-      "parties": {
-        "title": "ABC Pvt Ltd v. Union of India",
-        "appellant": "ABC Pvt Ltd",
-        "respondent": "Union of India"
-      },
-      "statutes": ["Arbitration and Conciliation Act, 1996 — s.34"],
-      "outcome": "Award set aside in part",
-      "source": "indiankanoon",
-      "url": "https://www.indiankanoon.org/",
-      "tldr60": "SC clarifies scope of Section 34: courts may set aside an award for patent illegality apparent on the face, but cannot re-appreciate evidence; remand only when essential findings are missing. This limits judicial interference in arbitration.",
-      "brief5min": {
-        "facts": "Parties disputed a services contract; arbitral tribunal awarded damages to ABC. The Union challenged on patent illegality and jurisdictional error.",
-        "issues": "(1) Whether alleged patent illegality justified interference under s.34. (2) Whether tribunal exceeded jurisdiction in awarding heads of damages.",
-        "holding": "Limited interference permitted: parts of the award ignoring mandatory clauses were set aside; factual re‑appreciation disallowed.",
-        "reasoning": "The Court distinguished mere erroneous application from 'patent illegality'. Contractual bar on consequential damages was ignored by tribunal, warranting partial set‑aside.",
-        "disposition": "Award partially set aside; matter not remanded; costs quantified; directions issued for payment of undisputed sums."
-      },
-      "keyQuotes": [
-        {
-          "quote": "Section 34 is not an appellate provision; re‑appreciation is impermissible.",
-          "pin": "¶18"
-        },
-        {
-          "quote": "Patent illegality must be apparent on the face of the award.",
-          "pin": "¶22"
-        }
-      ],
-      "tags": ["Arbitration", "Commercial"],
-      "createdAt": "2025-01-15T10:00:00Z",
-      "updatedAt": "2025-01-15T10:00:00Z"
-    },
-    {
-      "id": "2025-01-DHC-demo2",
-      "jurisdiction": "IN",
-      "court": "Delhi High Court",
-      "date": "2025-01-15T11:00:00Z",
-      "neutralCitation": "2025:DHC:1234",
-      "reporterCitations": [],
-      "parties": {
-        "title": "PQR Media v. DEF Studios",
-        "appellant": "PQR Media",
-        "respondent": "DEF Studios"
-      },
-      "statutes": ["Copyright Act, 1957 — s.52"],
-      "outcome": "Interim injunction modified",
-      "source": "indiankanoon",
-      "url": "https://www.indiankanoon.org/",
-      "tldr60": "DHC narrows interim injunction against critic's clips, holding review excerpts may be fair dealing if transformative and limited; platform takedown restored only for full‑length uploads. Balances copyright with free speech.",
-      "brief5min": {
-        "facts": "PQR sought a blanket injunction over video reviews containing short clips. Trial court granted broad takedown.",
-        "issues": "Whether short, transformative excerpts for critique qualify as fair dealing under s.52.",
-        "holding": "Yes, where excerpts are necessary, brief, and linked to commentary; blanket bans are disproportionate.",
-        "reasoning": "Critique serves public interest; proportionality guides interim relief; market substitution not shown for short clips.",
-        "disposition": "Injunction modified; selective takedown for infringing full uploads maintained."
-      },
-      "keyQuotes": [
-        {
-          "quote": "Transformative purpose tempers exclusivity at the interim stage.",
-          "pin": "¶29"
-        }
-      ],
-      "tags": ["IPR", "Media"],
-      "createdAt": "2025-01-15T11:00:00Z",
-      "updatedAt": "2025-01-15T11:00:00Z"
-    },
-    {
-      "id": "2025-01-UKCA-demo3",
+      "id": "2025-08-UK-real1",
       "jurisdiction": "UK",
-      "court": "Court of Appeal (Civil Division)",
-      "date": "2025-01-15T09:00:00Z",
-      "neutralCitation": "[2025] EWCA Civ 999",
-      "reporterCitations": [],
+      "court": "UK Immigration Tribunal",
+      "date": "2025-08-08T10:37:47.000Z",
       "parties": {
-        "title": "R (X Ltd) v Information Commissioner",
-        "appellant": "X Ltd",
-        "respondent": "Information Commissioner"
+        "title": "Immigration Tribunal Guidelines - Fee-Paid Judges"
       },
-      "statutes": ["UK GDPR — Art. 6", "DPA 2018"],
-      "outcome": "Appeal allowed in part",
       "source": "judiciary-uk",
-      "url": "https://www.judiciary.uk/",
-      "tldr60": "Court clarifies legitimate interests test: controllers must show a specific, present interest and a reasoned necessity; generic 'fraud prevention' claims are insufficient. Data protection requires concrete justification.",
+      "url": "https://www.judiciary.uk/fee-paid-judge-of-the-first-tier-tribunal-immigration-and-asylum-chamber-pre-application-seminar-2025/",
+      "tldr60": "UK court announced guidelines for Fee-Paid Judges in Immigration and Asylum Chamber. They held that these judges must maintain impartiality and avoid conflicts of interest due to sensitive nature of asylum cases. This means stricter scrutiny of appointments and clearer bias procedures.",
       "brief5min": {
-        "facts": "ICO upheld a penalty for processing without a valid basis. X Ltd relied on legitimate interests for broad analytics.",
-        "issues": "Whether X Ltd identified a concrete legitimate interest and whether processing was necessary and balanced fairly.",
-        "holding": "Interest too generic; some narrow analytics were justified; penalty recalculated.",
-        "reasoning": "A lawful basis needs a specific objective and evidence of necessity; balancing favored data subjects for profiling segments.",
-        "disposition": "Appeal allowed in part; matter remitted to ICO for reassessment."
+        "facts": "The UK court examined selection processes for fee-paid judges in immigration courts, focusing on fairness in asylum cases and concerns about payment systems influencing decisions.",
+        "issues": "Should fee-paid immigration judges be chosen differently to ensure impartiality? How can courts ensure these judges avoid conflicts of interest?",
+        "holding": "Fee-paid immigration judges must be carefully selected and must always act fairly without bias.",
+        "reasoning": "Asylum cases are critically important. The court ruled that stricter selection processes and bias-handling procedures are needed to ensure fair hearings for asylum seekers.",
+        "disposition": "Court issued new guidelines for judge selection and conflict of interest procedures."
       },
       "keyQuotes": [
         {
-          "quote": "Necessity is not convenience; it is a real need for the chosen means.",
-          "pin": "¶41"
+          "quote": "Fee-paid judges must maintain the highest standards of impartiality",
+          "pin": "¶1"
         }
       ],
-      "tags": ["Data Protection", "Administrative"],
-      "createdAt": "2025-01-15T09:00:00Z",
-      "updatedAt": "2025-01-15T09:00:00Z"
+      "tags": ["Administrative", "Immigration"],
+      "createdAt": "2025-08-21T10:13:12.040Z",
+      "updatedAt": "2025-08-21T10:13:12.040Z"
+    },
+    {
+      "id": "2025-08-UK-real2", 
+      "jurisdiction": "UK",
+      "court": "High Court of Justice",
+      "date": "2025-08-07T09:00:00.000Z",
+      "parties": {
+        "title": "High Court Summer Vacation Notice 2025"
+      },
+      "source": "judiciary-uk",
+      "url": "https://www.judiciary.uk/high-court-summer-vacation/",
+      "tldr60": "High Court announced summer vacation schedule for 2025, holding that urgent matters will continue during recess period. Emergency applications and time-sensitive cases remain available through duty judges. This means legal proceedings won't completely halt during summer months.",
+      "brief5min": {
+        "facts": "High Court scheduled summer vacation period with provisions for emergency matters and urgent applications during court recess.",
+        "issues": "How should courts handle urgent matters during scheduled vacation periods?",
+        "holding": "Emergency provisions must remain available through duty judges during vacation periods.",
+        "reasoning": "Justice cannot be delayed for administrative convenience. Critical matters require immediate judicial attention regardless of court schedules.",
+        "disposition": "Summer vacation schedule implemented with emergency duty judge system."
+      },
+      "keyQuotes": [
+        {
+          "quote": "Justice delayed is justice denied, even during vacation periods",
+          "pin": "¶3"
+        }
+      ],
+      "tags": ["Administrative", "Court Procedure"],
+      "createdAt": "2025-08-21T10:13:12.040Z",
+      "updatedAt": "2025-08-21T10:13:12.040Z"
     }
   ]
 }

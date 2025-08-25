@@ -22,6 +22,16 @@ const SOURCES = {
         court: 'scotus,ca1,ca2,ca3,ca4,ca5,ca6,ca7,ca8,ca9,ca10,ca11,cadc',
         order_by: '-date_filed',
       }
+    },
+    caselaw: {
+      name: 'Harvard Case.law',
+      type: 'api',
+      url: 'https://api.case.law/v1/cases/',
+      params: {
+        ordering: '-decision_date',
+        page_size: 20,
+        full_case: 'true'
+      }
     }
   },
   IN: {
@@ -39,6 +49,16 @@ const SOURCES = {
       name: 'Bombay High Court',
       type: 'rss',
       url: 'https://indiankanoon.org/feeds/bombayhc.xml'
+    },
+    sci_official: {
+      name: 'Supreme Court Official',
+      type: 'rss',
+      url: 'https://main.sci.gov.in/rss/judgment'
+    },
+    ecourts: {
+      name: 'eCourts Portal',
+      type: 'api',
+      url: 'https://judgments.ecourts.gov.in'
     }
   },
   UK: {
@@ -137,11 +157,106 @@ async function scrapeRSSFeed(url: string, jurisdiction: Jurisdiction, source: So
   }
 }
 
-// Scrape CourtListener API (when API key is available)
+// Scrape CourtListener API (completely FREE - no API key needed!)
 async function scrapeCourtListener(): Promise<Partial<Case>[]> {
-  // For now, return empty array until API key is provided
-  console.log('CourtListener API scraping will be available when API key is configured')
-  return []
+  try {
+    console.log('Fetching from CourtListener (free API)...')
+    
+    // Get cases from last 7 days
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const dateFilter = sevenDaysAgo.toISOString().split('T')[0]
+    
+    const url = `https://www.courtlistener.com/api/rest/v4/search/?type=o&filed_after=${dateFilter}&court=scotus&order_by=-dateFiled`
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': '5MinCase/1.0 (legal research tool)'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`CourtListener API error: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    console.log(`Found ${data.results?.length || 0} US cases from CourtListener`)
+    
+    return (data.results || []).slice(0, 10).map((item: any) => ({
+      jurisdiction: 'US' as const,
+      court: item.court || 'Federal Court',
+      date: item.dateFiled || new Date().toISOString(),
+      parties: {
+        title: item.caseName || 'Unknown Case'
+      },
+      source: 'courtlistener' as const,
+      url: item.absolute_url || `https://www.courtlistener.com/opinion/${item.id}/`,
+      tldr60: '',
+      brief5min: {
+        facts: '',
+        issues: '',
+        holding: '',
+        reasoning: '',
+        disposition: ''
+      },
+      keyQuotes: [],
+      tags: [],
+      statutes: []
+    }))
+    
+  } catch (error) {
+    console.error('CourtListener scraping failed:', error)
+    return []
+  }
+}
+
+// Scrape Harvard Case.law API (FREE - 500 cases/day)
+async function scrapeCaseLaw(): Promise<Partial<Case>[]> {
+  try {
+    console.log('Fetching from Harvard Case.law (free API)...')
+    
+    const url = 'https://api.case.law/v1/cases/?ordering=-decision_date&page_size=20&jurisdiction=us'
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': '5MinCase/1.0 (legal research tool)'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Case.law API error: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    console.log(`Found ${data.results?.length || 0} cases from Harvard Case.law`)
+    
+    return (data.results || []).slice(0, 10).map((item: any) => ({
+      jurisdiction: 'US' as const,
+      court: item.court?.name || 'US Court',
+      date: item.decision_date || new Date().toISOString(),
+      parties: {
+        title: item.name_abbreviation || item.name || 'Unknown Case'
+      },
+      source: 'caselaw' as const,
+      url: item.frontend_url || `https://cite.case.law/${item.citations?.[0]?.cite}`,
+      neutralCitation: item.citations?.[0]?.cite,
+      tldr60: '',
+      brief5min: {
+        facts: '',
+        issues: '',
+        holding: '',
+        reasoning: '',
+        disposition: ''
+      },
+      keyQuotes: [],
+      tags: [],
+      statutes: []
+    }))
+    
+  } catch (error) {
+    console.error('Case.law scraping failed:', error)
+    return []
+  }
 }
 
 // Main scraper function
@@ -165,9 +280,12 @@ export async function scrapeAllSources(): Promise<Partial<Case>[]> {
     }
   }
   
-  // Scrape US sources (when API key is available)
-  const usCases = await scrapeCourtListener()
-  allCases.push(...usCases)
+  // Scrape US sources (completely FREE!)
+  const courtListenerCases = await scrapeCourtListener()
+  allCases.push(...courtListenerCases)
+  
+  const caseLawCases = await scrapeCaseLaw()
+  allCases.push(...caseLawCases)
   
   return allCases
 }

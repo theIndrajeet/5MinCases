@@ -1,0 +1,7 @@
+
+> 5mincase@0.1.0 dev
+> next dev
+
+/Users/issac/Desktop/5mincase/node_modules/.bin/next: line 2: use strict: command not found
+/Users/issac/Desktop/5mincase/node_modules/.bin/next: line 3: syntax error near unexpected token `exports,'
+/Users/issac/Desktop/5mincase/node_modules/.bin/next: line 3: `Object.defineProperty(exports, "__esModule", {'

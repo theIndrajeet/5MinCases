@@ -4,8 +4,11 @@ const nextConfig = {
   swcMinify: true,
   output: 'export',
   trailingSlash: true,
-  basePath: '/5MinCases',
-  assetPrefix: '/5MinCases',
+  // Only use basePath for GitHub Pages in production
+  ...(process.env.NODE_ENV === 'production' && process.env.GITHUB_ACTIONS ? {
+    basePath: '/5MinCases',
+    assetPrefix: '/5MinCases',
+  } : {}),
   images: {
     unoptimized: true
   },
