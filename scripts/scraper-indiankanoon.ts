@@ -7,6 +7,7 @@ import path from 'path'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 import type { Case } from '../types/case'
+import { Client, Databases, ID } from 'appwrite'
 
 dotenv.config({ path: '.env.local' })
 
@@ -164,7 +165,7 @@ function convertToCase(doc: IKDocumentSchema): Partial<Case> {
   
   // Extract citation from title or docsource
   let neutralCitation: string | undefined
-  const citationMatch = doc.title.match(/\[(?\d{4})\]\s+(\d+\s+)?(\w+)\s+(\d+)/)
+  const citationMatch = doc.title.match(/\[(\d{4})\]\s+(\d+\s+)?(\w+)\s+(\d+)/)
   if (citationMatch) {
     neutralCitation = citationMatch[0]
   }
@@ -258,16 +259,23 @@ async function scrapeIndianKanoon() {
     }
   }
   
-  // Save raw cases
-  const dataDir = path.join(process.cwd(), 'data', 'raw')
-  await fs.mkdir(dataDir, { recursive: true })
-  
-  const filename = `${yesterday.getFullYear()}-${(yesterday.getMonth() + 1).toString().padStart(2, '0')}-${yesterday.getDate().toString().padStart(2, '0')}-indiankanoon.json`
-  const filepath = path.join(dataDir, filename)
-  
-  await fs.writeFile(filepath, JSON.stringify(allCases, null, 2))
-  console.log(`Saved ${allCases.length} cases to ${filepath}`)
-  
+  // Store cases in Appwrite
+  console.log(`Storing ${allCases.length} cases to Appwrite`)  
+  await ensureSession()
+  for (const c of allCases) {
+    try {
+      await databases.createDocument(DB_ID, CASES_COL_ID, ID.unique(), {
+        id: c.id,
+        type: 'case',
+        data: JSON.stringify(c),
+      })
+    } catch (err) {
+      console.error(`Failed to store case ${c.id}:`, err)
+    }
+    // optional delay to avoid rate limits
+    await new Promise(r => setTimeout(r, 200))
+  }
+  console.log(`Stored ${allCases.length} cases to Appwrite`)
   // Print cost estimate
   const searchRequests = 1 + highCourts.length // 1 SC + 5 HCs
   const docRequests = allCases.length

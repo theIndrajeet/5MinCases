@@ -6,6 +6,8 @@ import fs from 'fs/promises'
 import path from 'path'
 import Parser from 'rss-parser'
 import { z } from 'zod'
+import { Client, Databases, ID } from 'appwrite'
+import { ensureSession } from './appwrite'
 
 const parser = new Parser()
 
@@ -160,14 +162,22 @@ async function scrapeLegalNews() {
     news: uniqueNews.slice(0, 50), // Top 50 news items
   }
   
-  await fs.writeFile(filepath, JSON.stringify(newsData, null, 2))
-  console.log(`Saved ${newsData.count} news items to ${filepath}`)
-  
-  // Also save a "today's news" file for easy access
-  const todayPath = path.join(process.cwd(), 'public', 'data', 'today-news.json')
-  await fs.mkdir(path.dirname(todayPath), { recursive: true })
-  await fs.writeFile(todayPath, JSON.stringify(newsData, null, 2))
-  console.log(`Saved today's news to ${todayPath}`)
+  // Store news in Appwrite
+  console.log(`Storing ${newsData.count} news items to Appwrite`)
+  await ensureSession()
+  for (const item of newsData.news) {
+    try {
+      await databases.createDocument(DB_ID, NEWS_COL_ID, ID.unique(), {
+        id: item.id,
+        type: 'news',
+        data: JSON.stringify(item),
+      })
+    } catch (err) {
+      console.error(`Failed to store news ${item.id}:`, err)
+    }
+    await new Promise(r => setTimeout(r, 200))
+  }
+  console.log(`Stored ${newsData.count} news items to Appwrite`)
 }
 
 // Run if called directly
