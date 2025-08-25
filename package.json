@@ -9,10 +9,13 @@
     "start": "next start",
     "lint": "next lint",
     "scrape": "tsx scripts/scraper.ts",
+    "scrape:ik": "tsx scripts/scraper-indiankanoon.ts",
+    "scrape:news": "tsx scripts/scraper-news.ts",
     "summarize": "tsx scripts/summarizer.ts",
     "build-index": "tsx scripts/build-index.ts",
-    "daily-update": "npm run scrape && npm run summarize && npm run build-index",
-    "test-apis": "tsx scripts/test-apis.ts"
+    "daily-update": "npm run scrape:ik && npm run scrape:news && npm run summarize && npm run build-index",
+    "test-apis": "tsx scripts/test-apis.ts",
+    "test-scrapers": "tsx scripts/test-scrapers.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.3",

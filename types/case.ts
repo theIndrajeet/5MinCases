@@ -1,6 +1,6 @@
 // Case data types matching our schema
-export type Jurisdiction = 'US' | 'IN' | 'UK'
-export type Source = 'courtlistener' | 'caselaw' | 'indiankanoon' | 'judiciary-uk' | 'ecourts' | 'sci-official'
+export type Jurisdiction = 'IN' // India only now
+export type Source = 'Indian Kanoon' // Single authoritative source for cases
 
 export interface CaseParties {
   title: string
