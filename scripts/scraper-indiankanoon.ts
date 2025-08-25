@@ -145,7 +145,7 @@ async function searchCases(fromDate: string, toDate: string, doctypes: string, p
 }
 
 // Fetch full document
-async function fetchDocument(tid: string): Promise<IKDocumentSchema> {
+async function fetchDocument(tid: string) {
   console.log(`Fetching document ${tid}`)
   
   const params = {
