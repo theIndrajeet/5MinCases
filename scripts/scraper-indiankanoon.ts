@@ -6,6 +6,8 @@ import fs from 'fs/promises'
 import path from 'path'
 import { z } from 'zod'
 import dotenv from 'dotenv'
+import { ensureSession, databases, DB_ID, CASES_COL_ID } from '../lib/appwrite'
+import { ID } from 'appwrite'
 import type { Case } from '../types/case'
 import { Client, Databases, ID } from 'appwrite'
 
