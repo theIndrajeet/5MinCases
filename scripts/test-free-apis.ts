@@ -19,7 +19,11 @@ async function testCourtListenerV4() {
     console.log('Response:', text.substring(0, 200))
     
   } catch (error) {
-    console.error('Error:', error.message)
+    if (error instanceof Error) {
+      console.error('Error:', error.message)
+    } else {
+      console.error('Unexpected error:', error)
+    }
   }
 }
 
@@ -42,7 +46,11 @@ async function testJustiaFree() {
     console.log('Found cases:', caseMatches?.slice(0, 5))
     
   } catch (error) {
-    console.error('Error:', error.message)
+    if (error instanceof Error) {
+      console.error('Error:', error.message)
+    } else {
+      console.error('Unexpected error:', error)
+    }
   }
 }
 
@@ -65,7 +73,11 @@ async function testECourtsIndia() {
     console.log('Found judgment references:', judgmentMatches?.length || 0)
     
   } catch (error) {
-    console.error('Error:', error.message)
+    if (error instanceof Error) {
+      console.error('Error:', error.message)
+    } else {
+      console.error('Unexpected error:', error)
+    }
   }
 }
 
@@ -88,7 +100,11 @@ async function testBAILII() {
     console.log('Found citations:', citations?.slice(0, 5))
     
   } catch (error) {
-    console.error('Error:', error.message)
+    if (error instanceof Error) {
+      console.error('Error:', error.message)
+    } else {
+      console.error('Unexpected error:', error)
+    }
   }
 }
 
