@@ -39,6 +39,7 @@ export interface Case {
   brief5min: Brief5Min
   keyQuotes: KeyQuote[]
   tags: string[] // Practice areas
+  rawText?: string // Raw HTML text for summarizer
   judges?: string[] // Bench composition
   createdAt?: string
   updatedAt?: string
