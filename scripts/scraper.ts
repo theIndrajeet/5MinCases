@@ -83,7 +83,7 @@ const RawCaseSchema = z.object({
 // Helper to extract court from various sources
 function extractCourt(source: Source, data: any): string {
   switch (source) {
-    case 'indiankanoon':
+    case 'Indian Kanoon':
       if (data.link?.includes('supremecourt')) return 'Supreme Court of India'
       if (data.link?.includes('delhihc')) return 'Delhi High Court'
       if (data.link?.includes('bombayhc')) return 'Bombay High Court'
