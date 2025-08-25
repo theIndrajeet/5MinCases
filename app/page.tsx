@@ -78,9 +78,9 @@ export default function FiveMinCaseApp() {
       try {
         await ensureSession()
         const caseRes = await databases.listDocuments(DB_ID, CASES_COL_ID)
-        setCases(caseRes.documents.map(d => JSON.parse((d as any).data)))
+        setCases(caseRes.documents.map((d: any) => JSON.parse(d.data)))
         const newsRes = await databases.listDocuments(DB_ID, NEWS_COL_ID)
-        setNews(newsRes.documents.map(d => JSON.parse((d as any).data)))
+        setNews(newsRes.documents.map((d: any) => JSON.parse(d.data)))
       } catch (error) {
         console.error('Failed to load data from Appwrite:', error)
       } finally {
