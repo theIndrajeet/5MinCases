@@ -124,7 +124,7 @@ function extractDate(publishdate?: string, title?: string): string {
 }
 
 // Search for recent cases
-async function searchCases(fromDate: string, toDate: string, doctypes: string, pagenum: number = 0): Promise<IKSearchResultSchema[]> {
+async function searchCases(fromDate: string, toDate: string, doctypes: string, pagenum: number = 0) {
   console.log(`Searching cases from ${fromDate} to ${toDate}, page ${pagenum}`)
   
   const params = {
