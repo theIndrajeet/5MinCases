@@ -158,7 +158,7 @@ async function fetchDocument(tid: string) {
 }
 
 // Convert IK document to our Case format
-function convertToCase(doc: IKDocumentSchema): Partial<Case> {
+function convertToCase(doc: z.infer<typeof IKDocumentSchema>): Partial<Case> {
   const parties = extractParties(doc.title)
   const court = extractCourt(doc.docsource)
   const date = extractDate(doc.publishdate, doc.title)
@@ -194,7 +194,6 @@ function convertToCase(doc: IKDocumentSchema): Partial<Case> {
     tags: [],
     statutes: [],
     reporterCitations: [],
-    significance: 'medium',
     rawText: doc.doc, // Store HTML for summarizer
   }
 }
