@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0B2B26"/>
+  
+  <!-- Clock circle (representing 5 minutes) -->
+  <circle cx="256" cy="180" r="80" stroke="#DAF1DE" stroke-width="16" fill="none"/>
+  
+  <!-- Clock hands -->
+  <line x1="256" y1="180" x2="256" y2="120" stroke="#DAF1DE" stroke-width="12" stroke-linecap="round"/>
+  <line x1="256" y1="180" x2="296" y2="180" stroke="#DAF1DE" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- Document/Case lines -->
+  <rect x="156" y="300" width="200" height="16" rx="8" fill="#DAF1DE"/>
+  <rect x="156" y="340" width="160" height="16" rx="8" fill="#8EB9B8"/>
+  <rect x="156" y="380" width="180" height="16" rx="8" fill="#8EB9B8"/>
+  
+  <!-- 5 text -->
+  <text x="256" y="200" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#DAF1DE" text-anchor="middle">5</text>
+</svg>

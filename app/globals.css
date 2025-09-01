@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@300;400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 5 Min Case Brand Colors */
+    --dark-authority: #051F20;
+    --deep-emerald: #0B2B26;
+    --slate-green: #163832;
+    --muted-teal: #235547;
+    --soft-sage: #8EB9B8;
+    --pale-mint: #DAF1DE;
+    
+    /* Semantic color mappings */
+    --bg-primary: var(--pale-mint);
+    --bg-card: white;
+    --text-primary: var(--dark-authority);
+    --text-secondary: var(--muted-teal);
+    --accent: var(--deep-emerald);
+    --border: #e5e7eb;
+  }
+
+  .dark {
+    --bg-primary: #0a0a0a;
+    --bg-card: var(--slate-green);
+    --text-primary: var(--pale-mint);
+    --text-secondary: var(--soft-sage);
+    --accent: var(--pale-mint);
+    --border: var(--muted-teal);
+  }
+}
+
+@layer utilities {
+  /* Custom utilities for 5 Min Case */
+  .font-heading {
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+  }
+
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--muted-teal);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--deep-emerald);
+  }
+
+  /* Case card gradient */
+  .case-card-gradient {
+    background: linear-gradient(135deg, var(--pale-mint) 0%, white 100%);
+  }
+
+  .dark .case-card-gradient {
+    background: linear-gradient(135deg, var(--slate-green) 0%, var(--muted-teal) 100%);
+  }
+
+  /* Mobile-specific styles */
+  @media (max-width: 768px) {
+    body {
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Prevent text selection during swipe */
+  .touch-none {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Smooth transitions */
+  .transition-swipe {
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  }
+}

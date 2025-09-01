@@ -1,0 +1,62 @@
+{
+  "date": "2025-08-21",
+  "count": 10,
+  "cases": [
+    {
+      "id": "2025-08-UK-real1",
+      "jurisdiction": "UK",
+      "court": "UK Immigration Tribunal",
+      "date": "2025-08-08T10:37:47.000Z",
+      "parties": {
+        "title": "Immigration Tribunal Guidelines - Fee-Paid Judges"
+      },
+      "source": "judiciary-uk",
+      "url": "https://www.judiciary.uk/fee-paid-judge-of-the-first-tier-tribunal-immigration-and-asylum-chamber-pre-application-seminar-2025/",
+      "tldr60": "UK court announced guidelines for Fee-Paid Judges in Immigration and Asylum Chamber. They held that these judges must maintain impartiality and avoid conflicts of interest due to sensitive nature of asylum cases. This means stricter scrutiny of appointments and clearer bias procedures.",
+      "brief5min": {
+        "facts": "The UK court examined selection processes for fee-paid judges in immigration courts, focusing on fairness in asylum cases and concerns about payment systems influencing decisions.",
+        "issues": "Should fee-paid immigration judges be chosen differently to ensure impartiality? How can courts ensure these judges avoid conflicts of interest?",
+        "holding": "Fee-paid immigration judges must be carefully selected and must always act fairly without bias.",
+        "reasoning": "Asylum cases are critically important. The court ruled that stricter selection processes and bias-handling procedures are needed to ensure fair hearings for asylum seekers.",
+        "disposition": "Court issued new guidelines for judge selection and conflict of interest procedures."
+      },
+      "keyQuotes": [
+        {
+          "quote": "Fee-paid judges must maintain the highest standards of impartiality",
+          "pin": "¶1"
+        }
+      ],
+      "tags": ["Administrative", "Immigration"],
+      "createdAt": "2025-08-21T10:13:12.040Z",
+      "updatedAt": "2025-08-21T10:13:12.040Z"
+    },
+    {
+      "id": "2025-08-UK-real2", 
+      "jurisdiction": "UK",
+      "court": "High Court of Justice",
+      "date": "2025-08-07T09:00:00.000Z",
+      "parties": {
+        "title": "High Court Summer Vacation Notice 2025"
+      },
+      "source": "judiciary-uk",
+      "url": "https://www.judiciary.uk/high-court-summer-vacation/",
+      "tldr60": "High Court announced summer vacation schedule for 2025, holding that urgent matters will continue during recess period. Emergency applications and time-sensitive cases remain available through duty judges. This means legal proceedings won't completely halt during summer months.",
+      "brief5min": {
+        "facts": "High Court scheduled summer vacation period with provisions for emergency matters and urgent applications during court recess.",
+        "issues": "How should courts handle urgent matters during scheduled vacation periods?",
+        "holding": "Emergency provisions must remain available through duty judges during vacation periods.",
+        "reasoning": "Justice cannot be delayed for administrative convenience. Critical matters require immediate judicial attention regardless of court schedules.",
+        "disposition": "Summer vacation schedule implemented with emergency duty judge system."
+      },
+      "keyQuotes": [
+        {
+          "quote": "Justice delayed is justice denied, even during vacation periods",
+          "pin": "¶3"
+        }
+      ],
+      "tags": ["Administrative", "Court Procedure"],
+      "createdAt": "2025-08-21T10:13:12.040Z",
+      "updatedAt": "2025-08-21T10:13:12.040Z"
+    }
+  ]
+}
