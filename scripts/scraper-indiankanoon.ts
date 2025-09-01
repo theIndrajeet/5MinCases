@@ -6,6 +6,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import { z } from 'zod'
 import { databases, DB_ID, CASES_COL_ID, ID } from '../lib/appwrite-server'
+import { Permission, Role } from 'node-appwrite'
 import type { Case } from '../types/case'
 
 const API_KEY = process.env.INDIANKANOON_API_KEY
@@ -256,11 +257,20 @@ async function scrapeIndianKanoon() {
   // No session needed - using service API key
   for (const c of allCases) {
     try {
-      await databases.createDocument(DB_ID, CASES_COL_ID, ID.unique(), {
-        id: c.id,
-        type: 'case',
-        data: JSON.stringify(c),
-      })
+      await databases.createDocument(
+        DB_ID,
+        CASES_COL_ID,
+        ID.unique(),
+        {
+          id: c.id,
+          type: 'case',
+          data: JSON.stringify(c),
+        },
+        [
+          Permission.read(Role.any()),
+          Permission.write(Role.team('server')),
+        ]
+      )
     } catch (err) {
       console.error(`Failed to store case ${c.id}:`, err)
     }
