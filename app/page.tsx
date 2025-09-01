@@ -31,6 +31,8 @@ import type { NewsItem } from "@/types/news"
 import { useIsMobile } from "@/hooks/useIsMobile"
 import { MobilePage } from "./mobile-page"
 import { NewsCard } from "@/components/NewsCard"
+// Removed top-level Appwrite imports to avoid server-side execution
+// We'll dynamically import the client in useEffect
 
 // Helper function for class names
 function classNames(...xs: Array<string | false | null | undefined>) {
@@ -41,24 +43,16 @@ function classNames(...xs: Array<string | false | null | undefined>) {
 const areas = [
   "Constitutional",
   "Criminal",
-  "Corporate", 
+  "Corporate",
   "Tax",
   "IPR",
   "Environmental",
   "Administrative",
-  "Labour",
-  "Family",
-  "Property",
-]
-
-const jurisdictions = ["IN", "US", "UK", "CA", "AU"]
+  "Commercial",
+];
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric", 
-    year: "numeric"
-  })
+  try { return new Date(iso).toLocaleDateString('en-IN'); } catch { return iso; }
 }
 
 // Main component with Cases/News toggle
@@ -78,43 +72,20 @@ export default function FiveMinCaseApp() {
   // Mobile detection
   const isMobile = useIsMobile()
 
-  // Load demo data
+  // Load cases and news on mount
   useEffect(() => {
     async function loadData() {
       setLoading(true)
       try {
-        // Load demo cases with AI summaries
-        const caseResponse = await fetch('/data/today.json')
-        if (caseResponse.ok) {
-          const caseData = await caseResponse.json()
-          setCases(caseData)
-          console.log('✅ Loaded demo cases with AI summaries')
-        }
-        
-        // Load news from Appwrite
-        try {
-          const { ensureSession, databases, DB_ID, NEWS_COL_ID } = await import('@/lib/appwrite')
-          await ensureSession()
-          const newsRes = await databases.listDocuments(DB_ID, NEWS_COL_ID)
-          setNews(newsRes.documents.map((d: any) => JSON.parse(d.data)))
-          console.log('✅ Loaded news from Appwrite')
-        } catch (appwriteError) {
-          console.log('Using fallback for news:', appwriteError)
-          // Fallback news data
-          setNews([
-            {
-              id: "demo-news-1",
-              title: "Supreme Court Clarifies Bail Guidelines in UAPA Cases",
-              summary: "The Supreme Court has issued comprehensive guidelines for bail in cases under the Unlawful Activities Prevention Act...",
-              url: "https://example.com/news1",
-              source: "Legal News Today",
-              publishedDate: new Date().toISOString(),
-              category: "Criminal Law"
-            }
-          ])
-        }
+        // Dynamically load Appwrite client in browser only
+        const { ensureSession, databases, DB_ID, CASES_COL_ID, NEWS_COL_ID } = await import('@/lib/appwrite')
+        await ensureSession()
+        const caseRes = await databases.listDocuments(DB_ID, CASES_COL_ID)
+        setCases(caseRes.documents.map((d: any) => JSON.parse(d.data)))
+        const newsRes = await databases.listDocuments(DB_ID, NEWS_COL_ID)
+        setNews(newsRes.documents.map((d: any) => JSON.parse(d.data)))
       } catch (error) {
-        console.error('Failed to load data:', error)
+        console.error('Failed to load data from Appwrite:', error)
       } finally {
         setLoading(false)
       }
@@ -155,278 +126,241 @@ export default function FiveMinCaseApp() {
 
   // Filter cases
   const filteredCases = useMemo(() => {
-    let filtered = cases
-
-    if (tab === "saved") {
-      filtered = cases.filter(c => savedIds.includes(c.id))
-    }
-
-    if (query) {
-      const q = query.toLowerCase()
-      filtered = filtered.filter(c => 
+    let res = cases;
+    if (selectedAreas.length) res = res.filter(c => c.tags.some(t => selectedAreas.includes(t)));
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      res = res.filter(c => (
         c.parties.title.toLowerCase().includes(q) ||
         c.court.toLowerCase().includes(q) ||
-        c.tldr60?.toLowerCase().includes(q)
-      )
+        (c.neutralCitation?.toLowerCase() ?? "").includes(q) ||
+        c.statutes.join(" ").toLowerCase().includes(q) ||
+        c.tags.join(" ").toLowerCase().includes(q) ||
+        c.tldr60.toLowerCase().includes(q)
+      ));
     }
-
-    if (selectedAreas.length > 0) {
-      filtered = filtered.filter(c => 
-        c.tags?.some(tag => selectedAreas.includes(tag))
-      )
-    }
-
-    return filtered
-  }, [cases, query, selectedAreas, tab, savedIds])
+    return res;
+  }, [query, selectedAreas, cases]);
 
   // Filter news
   const filteredNews = useMemo(() => {
-    let filtered = news
-
-    if (query) {
-      const q = query.toLowerCase()
-      filtered = filtered.filter(n => 
+    let res = news;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      res = res.filter(n => (
         n.title.toLowerCase().includes(q) ||
+        n.summary.toLowerCase().includes(q) ||
         n.source.toLowerCase().includes(q) ||
-        n.summary.toLowerCase().includes(q)
-      )
+        (n.category?.toLowerCase() ?? "").includes(q)
+      ));
     }
+    return res;
+  }, [query, news]);
 
-    return filtered
-  }, [news, query])
+  const showingCase = filteredCases[cursor];
+  const savedCases = cases.filter(c => savedIds.includes(c.id));
 
   if (loading) {
     return (
       <div className="min-h-screen bg-pale-mint dark:bg-slate-green flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 rounded-xl bg-deep-emerald animate-pulse mx-auto mb-4"></div>
-          <p className="text-muted-teal dark:text-soft-sage">Loading demo cases...</p>
+          <p className="text-muted-teal dark:text-soft-sage">Loading...</p>
         </div>
       </div>
     )
   }
 
+  // Show mobile interface on mobile devices
   if (isMobile) {
     return <MobilePage initialCases={filteredCases} />
   }
 
-  const currentCase = filteredCases[cursor]
-
   return (
-    <div className="min-h-screen bg-pale-mint dark:bg-neutral-950">
-      {/* Header */}
-      <header className="border-b border-muted-teal/20 bg-white/80 dark:bg-slate-green/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-lg bg-deep-emerald flex items-center justify-center">
-                  <Scale className="w-5 h-5 text-white" />
-                </div>
-                <h1 className="text-xl font-bold text-deep-emerald dark:text-soft-sage">5 Min Case</h1>
-              </div>
-              
-              {/* Content Type Toggle */}
-              <div className="flex items-center bg-soft-sage/10 dark:bg-muted-teal/10 rounded-lg p-1">
-                <button
-                  onClick={() => setContentType('cases')}
-                  className={classNames(
-                    "flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                    contentType === 'cases' 
-                      ? "bg-deep-emerald text-white" 
-                      : "text-muted-teal hover:text-deep-emerald"
-                  )}
-                >
-                  <Scale className="w-4 h-4" />
-                  <span>Cases</span>
-                </button>
-                <button
-                  onClick={() => setContentType('news')}
-                  className={classNames(
-                    "flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                    contentType === 'news' 
-                      ? "bg-deep-emerald text-white" 
-                      : "text-muted-teal hover:text-deep-emerald"
-                  )}
-                >
-                  <Newspaper className="w-4 h-4" />
-                  <span>News</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Dark mode toggle */}
-            <button
-              onClick={() => setDark(!dark)}
-              className="p-2 rounded-lg text-muted-teal hover:text-deep-emerald hover:bg-soft-sage/10 transition-colors"
-            >
-              {dark ? <SunMedium className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              <span className="sr-only">Toggle dark mode</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {contentType === 'cases' ? (
-          <>
-            {/* Cases Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-deep-emerald dark:text-soft-sage mb-2">
-                    DAILY JUDGMENTS
-                  </h2>
-                  <p className="text-muted-teal dark:text-soft-sage">
-                    Fresh cases from Indian courts.
-                  </p>
-                  <p className="text-sm text-muted-teal/70 dark:text-soft-sage/70 mt-1">
-                    Monday, 1 September • {filteredCases.length} judgments
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-muted-teal dark:text-soft-sage">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 rounded-full bg-deep-emerald"></div>
-                    <span>Powered by Indian Kanoon</span>
+    <div className="min-h-screen bg-pale-mint dark:bg-neutral-950 text-dark-authority dark:text-pale-mint">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-pale-mint/70 bg-pale-mint/80 dark:bg-neutral-950/70 border-b border-neutral-200 dark:border-muted-teal">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 grid place-items-center rounded-lg bg-deep-emerald text-pale-mint dark:bg-pale-mint dark:text-deep-emerald">
+                    <Sparkles className="w-5 h-5"/>
                   </div>
-                  <div className="flex items-center space-x-1 bg-soft-sage/10 dark:bg-muted-teal/10 px-2 py-1 rounded-md">
-                    <Clock className="w-3 h-3" />
-                    <span>5-minute briefs</span>
-                  </div>
+                  <div className="font-bold text-lg tracking-tight text-deep-emerald dark:text-pale-mint">5 Min Case</div>
                 </div>
-              </div>
-
-              {/* Search */}
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-muted-teal" />
-                <input
-                  type="text"
-                  placeholder="Search by party, citation, court..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-muted-teal/20 rounded-lg bg-white dark:bg-slate-green dark:border-muted-teal/30 text-deep-emerald dark:text-soft-sage placeholder-muted-teal/60 focus:outline-none focus:ring-2 focus:ring-deep-emerald/20 focus:border-deep-emerald/30"
-                />
-              </div>
-
-              {/* Tabs */}
-              <div className="flex items-center space-x-1 bg-soft-sage/10 dark:bg-muted-teal/10 rounded-lg p-1 mb-6">
-                {[
-                  { key: "today", label: "Today", icon: Home },
-                  { key: "trending", label: "Trending", icon: Flame },
-                  { key: "saved", label: "Saved", icon: Bookmark },
-                ].map(({ key, label, icon: Icon }) => (
+                
+                {/* Content Type Toggle */}
+                <div className="flex items-center bg-white/50 dark:bg-slate-green/50 rounded-xl p-1 border border-neutral-200 dark:border-muted-teal">
                   <button
-                    key={key}
-                    onClick={() => setTab(key as any)}
+                    onClick={() => setContentType('cases')}
                     className={classNames(
-                      "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      tab === key 
-                        ? "bg-white dark:bg-slate-green text-deep-emerald shadow-sm" 
-                        : "text-muted-teal hover:text-deep-emerald"
+                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                      contentType === 'cases' 
+                        ? "bg-deep-emerald text-pale-mint dark:bg-pale-mint dark:text-deep-emerald" 
+                        : "text-muted-teal dark:text-soft-sage hover:text-deep-emerald dark:hover:text-pale-mint"
                     )}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{label}</span>
-                    {key === "saved" && savedIds.length > 0 && (
-                      <span className="bg-deep-emerald text-white text-xs px-1.5 py-0.5 rounded-full">
-                        {savedIds.length}
-                      </span>
-                    )}
+                    <Scale className="w-4 h-4"/>
+                    Cases
                   </button>
-                ))}
+                  <button
+                    onClick={() => setContentType('news')}
+                    className={classNames(
+                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                      contentType === 'news' 
+                        ? "bg-deep-emerald text-pale-mint dark:bg-pale-mint dark:text-deep-emerald" 
+                        : "text-muted-teal dark:text-soft-sage hover:text-deep-emerald dark:hover:text-pale-mint"
+                    )}
+                  >
+                    <Newspaper className="w-4 h-4"/>
+                    News
+                  </button>
+                </div>
               </div>
+              
+              <button 
+                onClick={() => setDark(!dark)}
+                className="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-xl border border-deep-emerald dark:border-pale-mint hover:bg-deep-emerald hover:text-pale-mint dark:hover:bg-pale-mint dark:hover:text-deep-emerald transition-colors"
+                title="Toggle theme"
+              >
+                {dark ? <SunMedium className="w-4 h-4"/> : <Moon className="w-4 h-4"/>}
+                {dark ? "Light" : "Dark"}
+              </button>
             </div>
+          </div>
+        </header>
 
-            {/* Cases Grid */}
-            {filteredCases.length === 0 ? (
-              <div className="text-center py-12">
-                <Scale className="w-12 h-12 text-muted-teal/40 mx-auto mb-4" />
-                <p className="text-muted-teal dark:text-soft-sage">
-                  {tab === "saved" ? "No saved cases yet." : "No cases yet. Run the Indian Kanoon scraper to fetch today's judgments."}
+        <main className="py-6">
+          {/* Hero */}
+          <section className="mx-6 rounded-3xl border border-neutral-200 dark:border-muted-teal bg-white/70 dark:bg-slate-green/70 backdrop-blur p-6 case-card-gradient">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-teal dark:text-soft-sage">
+                  {contentType === 'cases' ? 'Daily Judgments' : 'Legal News'}
+                </div>
+                <h1 className="text-2xl md:text-3xl font-heading font-semibold leading-tight mt-1 text-dark-authority dark:text-pale-mint">
+                  {contentType === 'cases' 
+                    ? 'Fresh cases from Indian courts.' 
+                    : 'Latest legal news & analysis.'}
+                </h1>
+                <p className="text-sm text-muted-teal dark:text-soft-sage mt-1">
+                  {new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' })}
+                  {contentType === 'cases' 
+                    ? ` · ${filteredCases.length} judgments` 
+                    : ` · ${filteredNews.length} news items`}
                 </p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredCases.map((c, index) => (
-                  <CaseCard 
-                    key={c.id}
-                    c={c} 
-                    expanded={expandedId === c.id}
-                    onExpand={() => setExpandedId(expandedId === c.id ? null : c.id)}
-                    saved={savedIds.includes(c.id)}
-                    onToggleSave={() => {
-                      if (savedIds.includes(c.id)) {
-                        setSavedIds(savedIds.filter(id => id !== c.id))
-                      } else {
-                        setSavedIds([...savedIds, c.id])
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {/* News Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-deep-emerald dark:text-soft-sage mb-2">
-                    LEGAL NEWS
-                  </h2>
-                  <p className="text-muted-teal dark:text-soft-sage">
-                    Latest legal news & analysis.
-                  </p>
-                  <p className="text-sm text-muted-teal/70 dark:text-soft-sage/70 mt-1">
-                    Monday, 1 September • {filteredNews.length} news items
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-muted-teal dark:text-soft-sage">
-                  <div className="flex items-center space-x-1 bg-soft-sage/10 dark:bg-muted-teal/10 px-2 py-1 rounded-md">
-                    <Sparkles className="w-3 h-3" />
-                    <span>Curated from top sources</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Search */}
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-muted-teal" />
-                <input
-                  type="text"
-                  placeholder="Search news by title, source..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-muted-teal/20 rounded-lg bg-white dark:bg-slate-green dark:border-muted-teal/30 text-deep-emerald dark:text-soft-sage placeholder-muted-teal/60 focus:outline-none focus:ring-2 focus:ring-deep-emerald/20 focus:border-deep-emerald/30"
-                />
+              <div className="flex items-center gap-2">
+                {contentType === 'cases' ? (
+                  <>
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-soft-sage/20 dark:bg-muted-teal/20 border border-soft-sage dark:border-muted-teal">
+                      <Bell className="w-3.5 h-3.5"/> Powered by Indian Kanoon
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-soft-sage/20 dark:bg-muted-teal/20 border border-soft-sage dark:border-muted-teal">
+                      <BookOpen className="w-3.5 h-3.5"/> 5‑minute briefs
+                    </span>
+                  </>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-soft-sage/20 dark:bg-muted-teal/20 border border-soft-sage dark:border-muted-teal">
+                    <Newspaper className="w-3.5 h-3.5"/> Curated from top sources
+                  </span>
+                )}
               </div>
             </div>
+          </section>
+          
+          {/* Search */}
+          <div className="mx-6 mt-6">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-3 text-muted-teal" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={contentType === 'cases' 
+                  ? "Search by party, citation, court…" 
+                  : "Search news by title, source…"}
+                className="w-full pl-10 pr-3 py-3 rounded-2xl bg-white/90 dark:bg-slate-green/90 border border-neutral-200 dark:border-muted-teal text-sm focus:outline-none focus:ring-2 focus:ring-deep-emerald dark:focus:ring-pale-mint shadow-sm"
+              />
+            </div>
+          </div>
 
-            {/* News Grid */}
-            {filteredNews.length === 0 ? (
-              <div className="text-center py-12">
-                <Newspaper className="w-12 h-12 text-muted-teal/40 mx-auto mb-4" />
-                <p className="text-muted-teal dark:text-soft-sage">No news yet. Run the news scraper to fetch latest legal news.</p>
+          {/* Content */}
+          <div className="mt-6 px-6">
+            {contentType === 'cases' ? (
+              // Cases view
+              <div className="max-w-3xl mx-auto space-y-4">
+                {showingCase ? (
+                  <CaseCard
+                    c={showingCase}
+                    expanded={expandedId === showingCase.id}
+                    onExpand={() => setExpandedId((id) => id === showingCase.id ? null : showingCase.id)}
+                    saved={savedIds.includes(showingCase.id)}
+                    onToggleSave={() => setSavedIds((ids) => 
+                      ids.includes(showingCase.id) 
+                        ? ids.filter(x => x !== showingCase.id) 
+                        : [...ids, showingCase.id]
+                    )}
+                  />
+                ) : (
+                  <div className="text-center text-sm text-muted-teal dark:text-soft-sage py-20">
+                    {cases.length === 0 
+                      ? "No cases yet. Run the Indian Kanoon scraper to fetch today's judgments." 
+                      : "No results. Try clearing filters."}
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredNews.map((item) => (
-                  <NewsCard key={item.id} news={item} />
-                ))}
+              // News view
+              <div className="max-w-3xl mx-auto space-y-4">
+                {filteredNews.length > 0 ? (
+                  filteredNews.map((item) => (
+                    <NewsCard key={item.id} news={item} />
+                  ))
+                ) : (
+                  <div className="text-center text-sm text-muted-teal dark:text-soft-sage py-20">
+                    {news.length === 0 
+                      ? "No news yet. Run the news scraper to fetch latest legal news." 
+                      : "No results. Try clearing the search."}
+                  </div>
+                )}
               </div>
             )}
-          </>
-        )}
-      </main>
+          </div>
+        </main>
+      </div>
+
+      {/* Navigation footer for cases */}
+      {contentType === 'cases' && filteredCases.length > 0 && (
+        <div className="sticky bottom-4 z-40">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center justify-between rounded-2xl border border-deep-emerald dark:border-pale-mint bg-white/80 dark:bg-slate-green/80 backdrop-blur px-2 py-1 shadow-md mx-4">
+              <button 
+                onClick={() => setCursor((i) => Math.max(0, i - 1))} 
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-soft-sage/20 dark:hover:bg-muted-teal/20"
+              >
+                <ChevronLeft className="w-4 h-4"/> Prev
+              </button>
+              <div className="text-xs text-muted-teal dark:text-soft-sage">
+                {cursor + 1} / {filteredCases.length} 
+                <span className="ml-2 opacity-60">(← / →)</span>
+              </div>
+              <button 
+                onClick={() => setCursor((i) => Math.min(filteredCases.length - 1, i + 1))} 
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-soft-sage/20 dark:hover:bg-muted-teal/20"
+              >
+                Next <ChevronRight className="w-4 h-4"/>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
-// Case Card Component
+// Case Card Component (extracted from original)
 function CaseCard({ 
   c, 
   expanded, 
@@ -440,120 +374,145 @@ function CaseCard({
   saved: boolean; 
   onToggleSave: () => void 
 }) {
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (expanded) {
+      setLoading(true);
+      const t = setTimeout(() => setLoading(false), 420);
+      return () => clearTimeout(t);
+    }
+  }, [expanded]);
+
   return (
-    <article className="bg-white dark:bg-slate-green rounded-xl border border-muted-teal/20 p-6 hover:shadow-lg transition-shadow">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="text-xs font-medium text-muted-teal dark:text-soft-sage bg-soft-sage/10 dark:bg-muted-teal/10 px-2 py-1 rounded">
-              {c.court}
-            </span>
-            <span className="text-xs text-muted-teal/60 dark:text-soft-sage/60">
-              {formatDate(c.date)}
-            </span>
-          </div>
-          <h3 className="font-semibold text-deep-emerald dark:text-soft-sage leading-tight mb-2">
+    <article className="rounded-3xl border border-neutral-200 dark:border-muted-teal bg-white/80 dark:bg-slate-green/80 backdrop-blur p-6 shadow-sm transition-all hover:shadow-md">
+      <header className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-lg md:text-xl font-heading font-semibold leading-snug text-dark-authority dark:text-pale-mint">
             {c.parties.title}
-          </h3>
+          </h2>
+          <div className="mt-2">
+            <div className="flex flex-wrap items-center gap-2 text-[13px]">
+              <MetaBadge>{c.court}</MetaBadge>
+              <MetaBadge>{formatDate(c.date)}</MetaBadge>
+              {c.neutralCitation && <MetaBadge>{c.neutralCitation}</MetaBadge>}
+              {c.reporterCitations?.length ? <MetaBadge>{c.reporterCitations.join(" · ")}</MetaBadge> : null}
+            </div>
+          </div>
         </div>
-        
-        <div className="flex items-center space-x-2 ml-4">
-          <button
-            onClick={onToggleSave}
+        <div className="flex items-center gap-2 shrink-0">
+          <button 
+            title={saved ? "Unsave" : "Save"} 
+            onClick={onToggleSave} 
             className={classNames(
-              "p-2 rounded-lg transition-colors",
+              "p-2 rounded-xl border transition-colors", 
               saved 
-                ? "text-amber-600 bg-amber-50 dark:bg-amber-900/20" 
-                : "text-muted-teal hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                ? "border-deep-emerald bg-deep-emerald/10 dark:bg-pale-mint/10" 
+                : "border-neutral-200 dark:border-muted-teal hover:bg-soft-sage/20 dark:hover:bg-muted-teal/20"
             )}
           >
-            <Bookmark className={classNames("w-4 h-4", saved && "fill-current")} />
+            <Bookmark className="w-4 h-4"/>
           </button>
-          <button 
-            onClick={() => window.open(c.url, '_blank')}
-            className="p-2 rounded-lg text-muted-teal hover:text-deep-emerald hover:bg-soft-sage/10 transition-colors"
+          <a 
+            href={c.url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-2 rounded-xl border border-neutral-200 dark:border-muted-teal hover:bg-soft-sage/20 dark:hover:bg-muted-teal/20" 
+            title="Open on Indian Kanoon"
           >
-            <LinkIcon className="w-4 h-4" />
-          </button>
+            <LinkIcon className="w-4 h-4"/>
+          </a>
           <button 
-            onClick={() => navigator.share?.({ title: c.parties.title, url: c.url })}
-            className="p-2 rounded-lg text-muted-teal hover:text-deep-emerald hover:bg-soft-sage/10 transition-colors"
+            title="Share" 
+            className="p-2 rounded-xl border border-neutral-200 dark:border-muted-teal hover:bg-soft-sage/20 dark:hover:bg-muted-teal/20"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: c.parties.title,
+                  text: c.tldr60,
+                  url: window.location.href
+                })
+              }
+            }}
           >
-            <Share2 className="w-4 h-4" />
+            <Share2 className="w-4 h-4"/>
           </button>
         </div>
+      </header>
+
+      <p className="text-[15px] leading-7 mt-4 text-dark-authority dark:text-pale-mint font-body">
+        {c.tldr60}
+      </p>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <MetaBadge><Clock className="w-3.5 h-3.5"/> 5‑min</MetaBadge>
+        <MetaBadge><BookOpen className="w-3.5 h-3.5"/> {c.tags.join(" · ")}</MetaBadge>
+        {c.judges?.length && <MetaBadge>Bench: {c.judges.slice(0, 2).join(", ")}</MetaBadge>}
       </div>
 
-      {/* TL;DR */}
-      {c.tldr60 && (
-        <div className="mb-4 p-4 bg-soft-sage/5 dark:bg-muted-teal/5 rounded-lg border border-soft-sage/20 dark:border-muted-teal/20">
-          <p className="text-sm text-deep-emerald dark:text-soft-sage leading-relaxed">
-            {c.tldr60}
-          </p>
+      {!expanded && (
+        <div className="mt-5">
+          <button 
+            onClick={onExpand} 
+            className="text-sm inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-deep-emerald text-deep-emerald dark:border-pale-mint dark:text-pale-mint hover:bg-deep-emerald hover:text-pale-mint dark:hover:bg-pale-mint dark:hover:text-deep-emerald transition-colors"
+          >
+            Read the 5‑minute brief <ChevronRight className="w-4 h-4"/>
+          </button>
         </div>
       )}
 
-      {/* 5-minute brief */}
-      {c.brief5min && (
-        <div className="border-t border-muted-teal/10 pt-4">
-          <button
-            onClick={onExpand}
-            className="flex items-center justify-between w-full text-left"
-          >
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-muted-teal" />
-              <span className="text-sm font-medium text-muted-teal dark:text-soft-sage">5-min brief</span>
+      {expanded && (
+        <div className="mt-5 space-y-4 text-[15px] leading-7">
+          {loading ? (
+            <div className="animate-pulse space-y-3">
+              <div className="h-4 bg-soft-sage/30 dark:bg-muted-teal/30 rounded"/>
+              <div className="h-4 bg-soft-sage/30 dark:bg-muted-teal/30 rounded w-11/12"/>
+              <div className="h-4 bg-soft-sage/30 dark:bg-muted-teal/30 rounded w-10/12"/>
+              <div className="h-4 bg-soft-sage/30 dark:bg-muted-teal/30 rounded w-9/12"/>
             </div>
-            <ChevronRight className={classNames(
-              "w-4 h-4 text-muted-teal transition-transform",
-              expanded && "transform rotate-90"
-            )} />
-          </button>
-          
-          {expanded && (
-            <div className="mt-4 space-y-4">
-              {[
-                { key: 'facts', label: 'FACTS', content: c.brief5min.facts },
-                { key: 'issues', label: 'ISSUES', content: c.brief5min.issues },
-                { key: 'holding', label: 'HOLDING', content: c.brief5min.holding },
-                { key: 'reasoning', label: 'REASONING', content: c.brief5min.reasoning },
-                { key: 'disposition', label: 'DISPOSITION', content: c.brief5min.disposition },
-              ].map(({ key, label, content }) => (
-                <div key={key} className="border-l-2 border-deep-emerald/20 pl-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="w-6 h-6 rounded-full bg-deep-emerald text-white text-xs font-bold flex items-center justify-center">
-                      {key === 'facts' ? '1' : key === 'issues' ? '2' : key === 'holding' ? '3' : key === 'reasoning' ? '4' : '5'}
-                    </span>
-                    <h4 className="font-semibold text-deep-emerald dark:text-soft-sage text-sm">
-                      {label}
-                    </h4>
-                  </div>
-                  <p className="text-sm text-muted-teal dark:text-soft-sage leading-relaxed">
-                    {content}
-                  </p>
+          ) : (
+            <div className="grid gap-4">
+              <SectionNumbered n={1} title="Facts" text={c.brief5min.facts} />
+              <SectionNumbered n={2} title="Issues" text={c.brief5min.issues} />
+              <SectionNumbered n={3} title="Holding" text={c.brief5min.holding} />
+              <SectionNumbered n={4} title="Reasoning" text={c.brief5min.reasoning} />
+              <SectionNumbered n={5} title="Disposition" text={c.brief5min.disposition} />
+              {c.keyQuotes?.length > 0 && (
+                <div className="pt-3 border-t border-dotted border-soft-sage dark:border-muted-teal space-y-2">
+                  <div className="text-xs uppercase tracking-wide text-muted-teal dark:text-soft-sage">Pull‑quotes</div>
+                  {c.keyQuotes.map((q, idx) => (
+                    <figure key={idx} className="border-l-2 border-deep-emerald dark:border-soft-sage pl-3 italic text-sm text-slate-green dark:text-soft-sage">
+                      "{q.quote}" {q.pin && <span className="not-italic text-muted-teal dark:text-soft-sage/70">{q.pin}</span>}
+                    </figure>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>
       )}
-
-      {/* Tags */}
-      {c.tags && c.tags.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-muted-teal/10">
-          <div className="flex flex-wrap gap-2">
-            {c.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-xs bg-deep-emerald/10 dark:bg-soft-sage/10 text-deep-emerald dark:text-soft-sage px-2 py-1 rounded"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
     </article>
+  );
+}
+
+function MetaBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-full bg-soft-sage/20 dark:bg-muted-teal/20 border border-soft-sage/40 dark:border-muted-teal/40 text-dark-authority dark:text-pale-mint">
+      {children}
+    </span>
+  );
+}
+
+function SectionNumbered({ n, title, text }: { n: number; title: string; text: string }) {
+  return (
+    <section>
+      <div className="flex items-baseline gap-2">
+        <div className="w-6 h-6 rounded-lg grid place-items-center text-xs font-semibold bg-deep-emerald text-pale-mint dark:bg-pale-mint dark:text-deep-emerald">
+          {n}
+        </div>
+        <h3 className="text-sm uppercase tracking-wide text-muted-teal dark:text-soft-sage">{title}</h3>
+      </div>
+      <p className="mt-2 text-dark-authority dark:text-pale-mint">{text}</p>
+    </section>
   );
 }
