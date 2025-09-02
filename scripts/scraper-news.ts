@@ -7,7 +7,7 @@ import path from 'path'
 import Parser from 'rss-parser'
 import { z } from 'zod'
 import { databases, DB_ID, NEWS_COL_ID, ID } from '../lib/appwrite-server'
-import { Permission, Role } from 'node-appwrite'
+import { Permission, Role, Query } from 'node-appwrite'
 
 // Be lenient with feeds that have bad entities
 const parser = new Parser({
@@ -201,6 +201,69 @@ async function scrapeLegalNews() {
     await new Promise(r => setTimeout(r, 100)) // Rate limit
   }
   console.log(`Successfully stored ${successCount}/${newsData.count} news items to Appwrite`)
+  
+  // Clean up old news (older than 7 days)
+  await cleanupOldNews()
+}
+
+// Clean up old news items
+async function cleanupOldNews() {
+  console.log('Cleaning up old news items...')
+  
+  const cutoffDate = new Date()
+  cutoffDate.setDate(cutoffDate.getDate() - 7) // Keep news for 7 days
+  const cutoffISO = cutoffDate.toISOString()
+  
+  let totalDeleted = 0
+  let offset = 0
+  const pageSize = 100
+  
+  while (true) {
+    try {
+      const result = await databases.listDocuments(DB_ID, NEWS_COL_ID, [
+        Query.limit(pageSize),
+        Query.offset(offset)
+      ])
+      
+      if (!result.documents || result.documents.length === 0) break
+      
+      const documentsToDelete: string[] = []
+      
+      for (const doc of result.documents as any[]) {
+        try {
+          const newsData = JSON.parse(doc.data)
+          const publishedDate = new Date(newsData.publishedDate)
+          
+          if (publishedDate < cutoffDate) {
+            documentsToDelete.push(doc.$id)
+          }
+        } catch (error) {
+          // Skip malformed documents
+        }
+      }
+      
+      // Delete old documents
+      for (const docId of documentsToDelete) {
+        try {
+          await databases.deleteDocument(DB_ID, NEWS_COL_ID, docId)
+          totalDeleted++
+          await new Promise(resolve => setTimeout(resolve, 100)) // Rate limit
+        } catch (error) {
+          console.error(`Failed to delete old news ${docId}:`, error)
+        }
+      }
+      
+      if (result.documents.length < pageSize) break
+      offset += result.documents.length
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+    } catch (error) {
+      console.error('Error during news cleanup:', error)
+      break
+    }
+  }
+  
+  console.log(`Cleaned up ${totalDeleted} old news items`)
 }
 
 // Run if called directly

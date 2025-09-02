@@ -16,7 +16,8 @@
     "daily-update": "npm run scrape:ik && npm run scrape:news && npm run summarize && npm run build-index",
     "test-apis": "tsx scripts/test-apis.ts",
     "test-scrapers": "tsx scripts/test-scrapers.ts",
-    "backfill:case-perms": "tsx scripts/backfill-case-perms.ts"
+    "backfill:case-perms": "tsx scripts/backfill-case-perms.ts",
+    "clean:old-news": "tsx scripts/clean-old-news.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.3",
